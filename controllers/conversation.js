@@ -12,6 +12,7 @@ const getConversation = async(req, res)=>{
         let conversationId = i._id;
         let frndUser = await User.findById(otherId);
         // console.log(frndUser)
+        if (!frndUser) continue
 
         friends.push({conversationId, friendId:otherId, name:frndUser.username})
     }
