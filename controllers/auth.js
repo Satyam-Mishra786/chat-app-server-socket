@@ -23,16 +23,24 @@ const login =  async(req, res)=>{
     }})
 }
 
+
 const register = async(req, res)=>{
     const {username, email, password} = req.body;
+    console.log(username)
 
-    if(!username || !email || !password) return res.status(StatusCodes.BAD_REQUEST).json({success:false, msg:`Please provide all the details`})
+    if (!username || !email || !password) {
+        return res.status(StatusCodes.BAD_REQUEST).json({ success: false, msg: `Please provide all the details` })
+    }
+    try {
+        const salt = bcrypt.genSaltSync();
+        const hashPass = bcrypt.hashSync(password, salt)
+        const user = await User.create({ username, email, password: hashPass })
+        const token = user.createJWT()
+        res.status(StatusCodes.CREATED).json({ success: true, user, msg: `User created Successfully`, token })
+    } catch (e) {
+        return res.status(500).json({ success: false, msg: 'Error creating user..' })
+    }
 
-    const salt = bcrypt.genSaltSync();
-    const hashPass = bcrypt.hashSync(password,salt)
-    const user = await User.create({username, email, password:hashPass})
-    const token = user.createJWT()
-    res.status(StatusCodes.CREATED).json({success:true,user,msg:`User created Successfully`, token})
 }
 
 module.exports = {
